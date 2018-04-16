@@ -120,9 +120,6 @@ lazyLoad.install = function (Vue, options) {
 
     Vue.nextTick(() => {
       if (checkInView(el)) {
-        if (openWebp) {
-          binding.value = binding.value.replace(/(\.jpg|\.png)/g, ".webp")
-        }
         if (!imgCache[binding.value]) {
           _load()
         } else {
