@@ -9,6 +9,8 @@ npm install -save vue-webp-lazyload
 ```
 
 ### usage 
+
+#### main.js
 ```
 import lazyLoad from '@/vue-lazyload/index.js'
 
@@ -17,6 +19,11 @@ Vue.use(lazyLoad,{
   failImg:'/static/fail.png',
   openWebp:false
 })
+```
+
+#### template
+```
+      <img v-webp="'https://grewer.github.io/JsDemo/game/images/hero.jpg'">
 ```
 
 
