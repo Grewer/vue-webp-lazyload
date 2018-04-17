@@ -1,7 +1,7 @@
 let lazyLoad = function () {}
 
 lazyLoad.install = function (Vue, options) {
-  // loading 时的图片 
+  // loading 时的图片
   // loading 失败的图片
   // webp true or false 默认 false
 
@@ -79,14 +79,21 @@ lazyLoad.install = function (Vue, options) {
   const scroll = () => {
     let queue = store.queue
     if (queue.length > 0) {
-      for (let i = 0, l = queue.length; i < l; i++) {
+      let count = 0,l = queue.length
+      for (let i = 0; i < l; i++) {
         if(queue[i]){
           if (queue[i].status === 'loaded') {
-            queue[i] = undefined
+            delete queue[i]
+            count++
             continue;
           }
           load(queue[i])
+        }else{
+          count++
         }
+      }
+      if(count === l){
+        queue = []
       }
     }
   }
