@@ -79,21 +79,14 @@ lazyLoad.install = function (Vue, options) {
   const scroll = () => {
     let queue = store.queue
     if (queue.length > 0) {
-      let count = 0,l = queue.length
-      for (let i = 0; i < l; i++) {
+      for (let i = 0, l = queue.length; i < l; i++) {
         if(queue[i]){
           if (queue[i].status === 'loaded') {
-            delete queue[i]
-            count++
+            queue.splice(i,1)
             continue;
           }
           load(queue[i])
-        }else{
-          count++
         }
-      }
-      if(count === l){
-        queue = []
       }
     }
   }
