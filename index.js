@@ -24,7 +24,6 @@ lazyLoad.install = function (Vue, options) {
     }
   };
 
-
   if (openWebp) {
     check = (() => {
       return new Promise((resolve, reject) => {
@@ -32,7 +31,7 @@ lazyLoad.install = function (Vue, options) {
         let image = new Image();
 
         const addResult = (event) => {
-          isSupportWebp = event && event.type === 'load' ? image.width == 1 : false;
+          isSupportWebp = event && event.type === 'load' ? image.width === 1 : false;
           resolve(isSupportWebp)
         }
 
@@ -41,19 +40,37 @@ lazyLoad.install = function (Vue, options) {
         image.src = webpTestsUri;
       })
     })();
-
   }
 
-  const replace = (i, isAllow) => {
-    let {el, binding} = i
-    let webp = isAllow ? binding.value.replace(/(\.jpg|\.png)/g, ".webp") : binding.value
-    loadNewImg(webp).then(() => {
-      el.src = webp;
-      imgCache[webp] = 1
-      i.status = 'loaded'
-    }).catch(() => {
-      el.src = failImg || ''
-    })
+  let replace = (i, isAllow) => {
+
+    if (isAllow) {
+      replace = (i) => {
+        let {el, binding} = i
+        let webp = binding.value.replace(/(\.jpg|\.png)/g, ".webp")
+        loadNewImg(webp).then(() => {
+          el.src = webp;
+          imgCache[webp] = 1
+          i.status = 'loaded'
+        }).catch(() => {
+          el.src = failImg || ''
+        })
+      }
+      replace(i)
+    } else {
+      replace = (i) => {
+        let {el, binding} = i
+        let webp = binding.value
+        loadNewImg(webp).then(() => {
+          el.src = webp;
+          imgCache[webp] = 1
+          i.status = 'loaded'
+        }).catch(() => {
+          el.src = failImg || ''
+        })
+      }
+      replace(i)
+    }
   }
 
   const loadNewImg = (src) => {
@@ -68,12 +85,16 @@ lazyLoad.install = function (Vue, options) {
       img.src = src
     })
   }
+
+
   const checkInView = (el) => {
     let {top, bottom, left, right} = el.getBoundingClientRect()
     return (top < window.innerHeight && bottom > 0) &&
       (left < window.innerWidth && right > 0)
   }
 
+
+  let asyncScroll = null
 
   const scroll = () => {
     let queue = store.queue
@@ -90,39 +111,53 @@ lazyLoad.install = function (Vue, options) {
     }
   }
 
-  window.onscroll = scroll;
+  window.onscroll = function () {
+    if (asyncScroll) {
+      clearTimeout(asyncScroll)
+    }
+    asyncScroll = setTimeout(scroll, 500)
+  };
 
 
   let imgCache = {} //缓存已经加载过的图片
 
   const load = (i) => {
     let {el, binding} = i
-    const _load = () => {
+    let _load = () => {
       if (openWebp) {
         if (isSupportWebp === null) {
           check.then(() => {
-            replace(i, isSupportWebp)
+            _load = () => {
+              replace(i, isSupportWebp)
+            }
+            _load()
           })
         } else {
-          replace(i, isSupportWebp)
+          _load = () => {
+            replace(i, isSupportWebp)
+          }
+          _load()
         }
       } else {
-        loadNewImg(binding.value).then(() => {
-          el.src = binding.value;
-          imgCache[binding.value] = 1
-          i.status = 'loaded'
-        }).catch(() => {
-          el.src = failImg || ''
-        })
+        _load = () => {
+          loadNewImg(binding.value).then(() => {
+            el.src = binding.value;
+            imgCache[binding.value] = 1
+            i.status = 'loaded'
+          }).catch(() => {
+            el.src = failImg || ''
+          })
+        }
+        _load()
       }
     }
 
     Vue.nextTick(() => {
       if (checkInView(el)) {
-        if (!imgCache[binding.value]) {
-          _load()
-        } else {
+        if (imgCache[binding.value]) {
           el.src = binding.value
+        } else {
+          _load()
         }
       }
     })

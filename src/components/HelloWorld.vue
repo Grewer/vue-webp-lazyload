@@ -1,9 +1,9 @@
 <template>
   <div class="hello">
-    <img src="https://grewer.github.io/JsDemo/game/images/back.jpg" alt="">
-    <img src="https://grewer.github.io/JsDemo/game/images/hero.jpg" alt="">
-    <img src="https://grewer.github.io/JsDemo/game/images/monster.jpg" alt="" style="position: absolute;top: 1000px;left: 0">
-    <img src="https://grewer.github.io/dataSave/table-scroll.gif" alt="" style="position: absolute;top: 1000px;left: 100px;">
+    <img v-webp="'https://grewer.github.io/dataSave/back.jpg'" >
+    <img v-webp="'https://grewer.github.io/dataSave/hero.jpg'" alt="">
+    <img v-webp="'https://grewer.github.io/dataSave/monster.jpg'" alt="" style="position: absolute;top: 2000px;left: 0">
+    <img v-webp="'https://grewer.github.io/dataSave/s.jpg'" alt="" style="position: absolute;top: 2000px;left: 100px;">
   </div>
 </template>
 
