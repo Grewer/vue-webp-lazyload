@@ -1,4 +1,5 @@
-let lazyLoad = function () {}
+let lazyLoad = function () {
+}
 
 lazyLoad.install = function (Vue, options) {
   // loading 时的图片
@@ -22,8 +23,6 @@ lazyLoad.install = function (Vue, options) {
       this.topics[topic] = cb;
     }
   };
-
-
 
 
   if (openWebp) {
@@ -80,9 +79,9 @@ lazyLoad.install = function (Vue, options) {
     let queue = store.queue
     if (queue.length > 0) {
       for (let i = 0, l = queue.length; i < l; i++) {
-        if(queue[i]){
+        if (queue[i]) {
           if (queue[i].status === 'loaded') {
-            queue.splice(i,1)
+            queue.splice(i, 1)
             continue;
           }
           load(queue[i])
