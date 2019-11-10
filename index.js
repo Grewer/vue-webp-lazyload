@@ -1,6 +1,27 @@
 let lazyLoad = function () {
 }
 
+const checkWebpSupport = () => {
+  try {
+    return (document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0);
+  } catch (err) {
+    return false;
+  }
+}
+
+const loadNewImg = (src) => {
+  return new Promise((resolve, reject) => {
+    let img = new Image()
+    img.onload = function () {
+      resolve()
+    }
+    img.onerror = function () {
+      reject()
+    }
+    img.src = src
+  })
+}
+
 lazyLoad.install = function (Vue, options) {
   // loading 时的图片
   // loading 失败的图片
@@ -8,8 +29,15 @@ lazyLoad.install = function (Vue, options) {
 
   let isSupportWebp = null;
 
-  let {loadImg, failImg, openWebp} = options
+  let {
+    loadImg,
+    failImg,
+    openWebp = true
+  } = options
+
   let check = null
+
+  // openWebp need check
 
 
   let store = {
@@ -25,25 +53,11 @@ lazyLoad.install = function (Vue, options) {
   };
 
   if (openWebp) {
-    check = (() => {
-      return new Promise((resolve, reject) => {
-        let webpTestsUri = 'data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAwA0JaQAA3AA/vuUAAA=';
-        let image = new Image();
-
-        const addResult = (event) => {
-          isSupportWebp = event && event.type === 'load' ? image.width === 1 : false;
-          resolve(isSupportWebp)
-        }
-
-        image.onerror = addResult;
-        image.onload = addResult;
-        image.src = webpTestsUri;
-      })
-    })();
+    check = checkWebpSupport()
   }
 
   let replace = (i, isAllow) => {
-
+    // todo fix or remove
     if (isAllow) {
       replace = (i) => {
         let {el, binding} = i
@@ -73,18 +87,7 @@ lazyLoad.install = function (Vue, options) {
     }
   }
 
-  const loadNewImg = (src) => {
-    return new Promise((resolve, reject) => {
-      let img = new Image()
-      img.onload = function () {
-        resolve()
-      }
-      img.onerror = function () {
-        reject()
-      }
-      img.src = src
-    })
-  }
+
 
 
   const checkInView = (el) => {
@@ -126,12 +129,12 @@ lazyLoad.install = function (Vue, options) {
     let _load = () => {
       if (openWebp) {
         if (isSupportWebp === null) {
-          check.then(() => {
+          if(check){
             _load = () => {
               replace(i, isSupportWebp)
             }
             _load()
-          })
+          }
         } else {
           _load = () => {
             replace(i, isSupportWebp)
