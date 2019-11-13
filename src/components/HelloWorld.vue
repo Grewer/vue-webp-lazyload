@@ -1,13 +1,11 @@
 <template>
   <div class="hello">
+    <router-link to="/test">jump</router-link>
     <img v-webp="{image:'https://grewer.github.io/dataSave/back.jpg',
       webp:'https://grewer.github.io/dataSave/back.webp'}">
     <img alt=""
          v-webp="{image:'https://grewer.github.io/dataSave/hero.jpg',
          webp:'https://grewer.github.io/dataSave/hero.webp'}">
-    <img alt="" style="position: absolute;top: 2000px;left: 0"
-         v-webp="{image:'https://grewer.github.io/dataSave/monster.jpg',
-         webp:'https://grewer.github.io/dataSave/monster.webp'}">
     <img alt="" style="position: absolute;top: 2000px;left: 100px;"
          v-webp="{image:'https://grewer.github.io/dataSave/s.jpg',
          webp:'https://grewer.github.io/dataSave/s.webp'}">

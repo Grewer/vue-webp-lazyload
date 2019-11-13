@@ -116,17 +116,15 @@ lazyLoad.install = function (Vue, options) {
     },false)
   }
 
-  update();
   bindEvent();
 
   Vue.directive('webp', {
     bind(el, binding) {
       el.src = loadImg
       store.push({el, binding, status: 'pending'})
+      throttle(update, {context: this})
     }
   })
 }
-
-// 项目开始时未触发 // 页面进入时
 
 export default lazyLoad

@@ -23,7 +23,8 @@ Vue.use(lazyLoad,{
 
 #### template
 ```
-      <img v-webp="'https://grewer.github.io/JsDemo/game/images/hero.jpg'">
+ <img v-webp="{image:'https://grewer.github.io/dataSave/back.jpg',
+      webp:'https://grewer.github.io/dataSave/back.webp'}">
 ```
 
 
