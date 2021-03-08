@@ -5,6 +5,11 @@
   "description": "A Vue.js project",
   "author": "Grewer <grewer@grewer.cn>",
   "license": "MIT",
+  "files": [
+    "index.js",
+    "package.json",
+    "README.md"
+  ],
   "keywords": [
     "webp",
     "lazyload",
