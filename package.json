@@ -1,12 +1,13 @@
 {
   "name": "vue-webp-lazyload",
   "version": "1.0.1",
-  "main": "index.js",
+  "main": "dist/index.js",
   "description": "A Vue.js project",
   "author": "Grewer <grewer@grewer.cn>",
   "license": "MIT",
   "files": [
-    "index.js",
+    "libs/index.js",
+    "dist/index.js",
     "package.json",
     "README.md"
   ],
