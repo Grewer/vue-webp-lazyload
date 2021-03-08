@@ -2,11 +2,7 @@ let store = []; // store images
 
 
 class Utils {
-  static options = {
-    loadImg,
-    failImg,
-    openWebp
-  }
+  static options = {}
 
   static isSupportWebp = null
 
@@ -53,7 +49,7 @@ class Utils {
   }
 
   static getUrl = (binding) => {
-    if (openWebp && isSupportWebp) {
+    if (Utils.options.openWebp && Utils.isSupportWebp) {
       Utils.getUrl = (binding) => {
         return binding.value.webp || binding.value.image
       }
@@ -98,11 +94,12 @@ class Utils {
   }
 
   static bindEvent = () => {
+    const {throttle, update} = Utils
     window.addEventListener('resize', function () {
-      throttle(Utils.update, {context: this})
+      throttle(update, {context: this})
     }, false)
     window.addEventListener('scroll', function () {
-      throttle(Utils.update, {context: this})
+      throttle(update, {context: this})
     }, false)
   }
 
@@ -112,10 +109,16 @@ class Utils {
 let lazyLoad = function () {
 }
 
+lazyLoad.test = ()=>{
+  console.log(123)
+}
+
 lazyLoad.install = function (Vue, options) {
   // loading 时的图片
   // loading 失败的图片
   // webp true or false 默认 false
+
+  console.log('run', this, this.test())
 
   let {
     loadImg,
@@ -139,7 +142,7 @@ lazyLoad.install = function (Vue, options) {
     bind(el, binding) {
       el.src = loadImg
       store.push({el, binding, status: 'pending'})
-      throttle(Utils.update, {context: this})
+      Utils.throttle(Utils.update, {context: this})
     }
   })
 }

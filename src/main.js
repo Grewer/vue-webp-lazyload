@@ -3,7 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import lazyLoad from '../libs/index.js'
+import lazyLoad from '../dist/index.js'
 
 Vue.use(lazyLoad, {
   loadImg: '/static/loading.svg',
