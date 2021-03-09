@@ -23,7 +23,7 @@
     "start": "npm run dev",
     "build": "node build/build.js",
     "gulp": "gulp",
-    "watch": "gulp -watch"
+    "watch": "gulp watch"
   },
   "dependencies": {
     "vue": "^2.5.2",

@@ -1,7 +1,9 @@
+// https://github.com/w3c/IntersectionObserver/blob/main/polyfill/intersection-observer.js
+
 let lazyLoad = function () {
 }
 
-lazyLoad.store = []
+const CacheMap = new Map()
 
 lazyLoad.isSupportWebp = null
 
@@ -10,27 +12,6 @@ lazyLoad.checkWebpSupport = function () {
     return (document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0);
   } catch (err) {
     return false;
-  }
-}
-
-lazyLoad.throttle = function () {
-  var isClear = arguments[0], fn;
-  if (typeof isClear === 'boolean') {
-    fn = arguments[1];
-    fn.__throttleID && clearTimeout(fn.__throttleID)
-  } else {
-    fn = isClear;
-    var p = Object.assign({
-      context: null,
-      args: [],
-      time: 300,
-    }, arguments[1]);
-
-    lazyLoad.throttle(true, fn);
-
-    fn.__throttleID = setTimeout(function () {
-      fn.apply(p.context, p.args)
-    }, p.time)
   }
 }
 
@@ -60,47 +41,47 @@ lazyLoad.getUrl = function (binding) {
   return this.getUrl(binding)
 }
 
-lazyLoad.load = function (img) {
-  let {el, binding} = img
+// 加载图片
+lazyLoad.load = function (info) {
+  let {el, binding} = info
   const url = this.getUrl(binding)
   this.loadNewImg(url).then(() => {
     el.src = url;
+    info.status = 'resolve'
+    CacheMap.set(el, info)
   }).catch(() => {
     el.src = this.options.failImg || ''
+    info.status = 'reject'
+    CacheMap.set(el, info)
   })
 }
 
-lazyLoad.shouldShow = function (i) {
-  const {el} = this.store[i];
-  let {top, bottom, left, right} = el.getBoundingClientRect()
-  return (top < window.innerHeight && bottom > 0) &&
-    (left < window.innerWidth && right > 0)
+// 添加检测
+lazyLoad.observer = function () {
+  return new IntersectionObserver((entries) => {
+    entries.forEach(val => {
+      if (val.isIntersecting) {
+        const target = val.target
+        if (CacheMap.has(target)) {
+          const info = CacheMap.get(target)
+          if (info.status === 'pending') {
+            lazyLoad.load(info)
+          }
+        }
+      }
+    })
+  }, {
+    rootMargin: '0px',
+    threshold: 0
+  });
 }
 
-lazyLoad.update = function () {
-  const {store} = lazyLoad
-  if (!store.length) {
-    return;
-  }
+// 检查图片是否被加载过
+lazyLoad.checkComplete = function (url) {
+  const img = new Image();
+  img.src = url;
 
-  let i = store.length;
-
-  while (i--) {
-    if (lazyLoad.shouldShow(i)) {
-      lazyLoad.load(store[i])
-      store.splice(i, 1);
-    }
-  }
-}
-
-lazyLoad.bindEvent = function () {
-  const {throttle, update} = this
-  window.addEventListener('resize', function () {
-    throttle(update, {context: this})
-  }, false)
-  window.addEventListener('scroll', function () {
-    throttle(update, {context: this})
-  }, false)
+  return !!(img.complete || img.width);
 }
 
 lazyLoad.install = function (Vue, options) {
@@ -123,13 +104,27 @@ lazyLoad.install = function (Vue, options) {
     this.isSupportWebp = this.checkWebpSupport()
   }
 
-  this.bindEvent();
+  let observer = this.observer()
 
   Vue.directive('webp', {
     bind: (el, binding) => {
-      el.src = loadImg
-      this.store.push({el, binding, status: 'pending'})
-      this.throttle(this.update, {context: this})
+
+      const target = (this.options.openWebp && this.isSupportWebp) ? binding.value.webp : binding.value.image
+
+      const isLoaded = this.checkComplete(target)
+
+      el.src = isLoaded ? target : loadImg
+
+      CacheMap.set(el, {el, binding, status: isLoaded ? 'resolve' : 'pending'})
+
+      console.log(CacheMap)
+
+      observer.observe(el);
+    },
+    unbind: (el,) => {
+      if (CacheMap.has(el)) {
+        CacheMap.delete(el)
+      }
     }
   })
 }
